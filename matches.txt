@@ -1,0 +1,70 @@
+14: displayLong: "සඳුදා, 20 ජූලි 2026",
+30: "පවුල: ",
+139: { label: "දින", value: days },
+140: { label: "පැය", value: hours },
+141: { label: "මිනිත්තු", value: minutes },
+142: { label: "තත්පර", value: seconds },
+206: throw new Error("Google Script URL එක සකසා නැත");
+215: throw new Error("ඉල්ලීම අසාර්ථක විය");
+345: <h2 className="font-sinhala text-4xl md:text-6xl text-white mb-2 drop-shadow-2xl">විවාහ මංගල්‍යය</h2>
+362: <span className="relative z-10 font-cinzel font-bold text-black text-sm tracking-[0.4em] uppercase">ආරාධනය විවෘත කරන්න</span>
+371: ආරම්භ කිරීමට ක්ලික් කරන්න
+391: විවාහ ආරාධනය
+430: ආරම්භය ඉවත් කරන්න
+450: <div className="text-[8px] uppercase tracking-widest font-bold">වසා දමන්න</div>
+473: විවාහ ආරාධනය
+505: අපගේ පවුල් සමඟ, අපගේ විවාහය සැමරීමට ඔබගේ අගනා පැමිණීම ගෞරවයෙන් ඉල්ලා සිටිමු.
+512: විස්තර බලන්න
+557: <p className="font-cinzel text-[11px] md:text-sm tracking-[0.4em] mb-2 uppercase font-bold">පවුල් දෙකක් අත්වැල බැඳේ</p>
+559: <span className="text-sm md:text-base font-cinzel tracking-wider text-stone-700">මහත්මා Hemasiri Amarasinghe සහ මහත්මිය Gnana Hettiarachchi</span>
+560: <span className="font-playball text-2xl text-[#FD8A6B] italic my-2">සමඟ</span>
+561: <span className="text-sm md:text-base font-cinzel tracking-wider text-stone-700">මහත්මිය Himali Koralage සහ මහත්මා Chaminda Liyangasthenne (අභාවප්‍රාප්ත)</span>
+566: ආදරයෙන් පිරුණු හදවතින්, ඔබගේ අගනා පැමිණීම ගෞරවයෙන් ඉල්ලා සිටිමු<br />
+578: <h2 className="font-cinzel text-xl md:text-2xl text-[#FD8A6B] tracking-[0.5em] font-bold uppercase">විවාහ උත්සවය</h2>
+595: <span className="text-[9px] uppercase tracking-[0.6em] font-bold text-[#C30E59]/50">වධූ</span>
+605: <span className="bg-white px-6 font-playball text-4xl text-[#FD8A6B]">සමඟ</span>
+611: <span className="text-[9px] uppercase tracking-[0.6em] font-bold text-[#C30E59]/50">වරයා</span>
+622: <div className="text-[9px] uppercase tracking-[0.5em] font-bold text-[#C30E59]/40 font-cinzel">දිනය</div>
+632: <div className="text-[9px] uppercase tracking-[0.5em] font-bold text-[#d53f8c]/40 font-cinzel">වේලාව</div>
+633: <div className="text-sm md:text-base text-[#d53f8c] font-cinzel tracking-wide font-bold">පෝරු උත්සවය {INVITATION.time.ceremony}ට</div>
+642: <div className="text-[9px] uppercase tracking-[0.5em] font-bold text-[#d53f8c]/40 font-cinzel">ස්ථානය</div>
+665: <span className="text-[#d53f8c] font-bold uppercase tracking-[0.6em] text-[10px] md:text-xs opacity-50">දවස</span>
+668: <h2 className="font-playball text-5xl md:text-7xl bg-gradient-to-r from-[#ed64a6] via-[#d53f8c] to-[#ed64a6] bg-clip-text text-transparent leading-none drop-shadow-sm italic">කාලසටහන</h2>
+670: උත්සවයේ සරල කාලසටහනක්.
+681: <div className="text-[9px] uppercase tracking-[0.5em] font-bold text-[#C30E59]/40 font-cinzel">පෝරු උත්සවය ආරම්භය</div>
+691: <div className="text-[9px] uppercase tracking-[0.5em] font-bold text-[#C30E59]/40 font-cinzel">පෝරු උත්සවය අවසානය</div>
+701: <div className="text-[9px] uppercase tracking-[0.5em] font-bold text-[#C30E59]/40 font-cinzel">ලියාපදිංචිය</div>
+711: <div className="text-[9px] uppercase tracking-[0.5em] font-bold text-[#C30E59]/40 font-cinzel">හෝටල් ප්‍රවේශය (යුවළ)</div>
+748: සදාකාලික
+761: දිනය <span className="mx-2 md:mx-4 text-[#F2AE66]">සුරකින්න</span>
+783: මායාමය සඳහා රැඳී සිටින්න
+821: <span className="text-[#C30E59] font-bold uppercase tracking-[0.8em] text-[10px] md:text-xs opacity-40">ස්ථානය</span>
+836: පැරණි සම්ප්‍රදාය නව ආරම්භයේ සුන්දරත්වය හමුවෙන තැන
+857: "අපගේ උත්සවය සාගරය තරම් අනන්තවත්, උෂ්ණදේශීය හිරු තරම් උණුසුම්වත් වේවා."
+868: <h4 className="text-[#C30E59]/40 font-bold text-[10px] uppercase tracking-[0.5em] font-cinzel">ගමනාන්තය</h4>
+880: <h4 className="text-[#C30E59]/40 font-bold text-[10px] uppercase tracking-[0.5em] font-cinzel">පෝරු උත්සවය</h4>
+895: ඩිජිටල් සිතියම විවෘත කරන්න
+929: <span className="text-[8px] font-bold uppercase tracking-widest text-[#C30E59]/50">ගවේෂණය</span>
+962: පැමිණීම තහවුරු කිරීම
+974: <h3 className="font-playball text-2xl md:text-4xl text-slate-800 mb-8 text-center">පැමිණීම තහවුරු කිරීම</h3>
+978: <label className="text-xs font-bold text-slate-500 ml-1">ඔබගේ නම</label>
+981: placeholder="ඔබගේ නම මෙහි ලියන්න..."
+993: <label className="text-xs font-bold text-slate-500 ml-1">අපගේ විශේෂ දිනයට ඔබ පැමිණෙන්නේ ද?</label>
+1004: ඔව්, මම පැමිණෙන්නම්!
+1016: කණගාටුයි, මට පැමිණිය නොහැක — ඔබ මගේ සිතේ
+1022: {rsvpStatus === "success" ? "පැමිණීම තහවුරු කිරීම සාර්ථකව යවා ඇත." : "කරුණාකර ඔබගේ නම ඇතුළත් කර නැවත උත්සාහ කරන්න."}
+1032: {rsvpStatus === "sending" ? "යවමින්..." : "තහවුරු කිරීමට මෙතැන ක්ලික් කරන්න"}
+1034: <p className="text-[10px] text-slate-400 mt-4 text-center leading-relaxed">ඔබගේ තොරතුරු පොදු නොවේ. ඔබගේ ප්‍රතිචාරය පුද්ගලිකය.</p>
+1043: <p className="text-slate-500 text-[10px] tracking-[0.4em] font-bold uppercase mt-2">සම්බන්ධතා</p>
+1061: මිහිරි පණිවිඩ
+1072: <span className="text-[#C30E59] font-bold uppercase tracking-[0.6em] text-[10px] md:text-xs opacity-50">අමුත්තන්ගේ පොත</span>
+1077: හොඳ පැතුම්
+1081: ඔබගේ ආදරය සහ පැමිණීම අපට ලැබෙන මහත්ම ත්‍යාගයයි. සටහනක් තැබීමට කැමති නම්, එය අපට ගෞරවයකි.
+1105: සිට
+1110: placeholder="ඔබගේ නම"
+1125: ඔබගේ පණිවිඩය
+1130: placeholder="නව යුවළට පැතුම්..."
+1152: {wishStatus === "success" ? "ආදරයෙන් පණිවිඩය යවා ඇත" : "කරුණාකර ආකෘතිය සම්පූර්ණ කරන්න"}
+1166: {wishStatus === "sending" ? "යවමින්..." : "පැතුම් යවන්න"}
+1192: <h2 className="font-playball text-5xl md:text-7xl bg-gradient-to-r from-[#FD8A6B] via-[#C30E59] to-[#FD8A6B] bg-clip-text text-transparent italic">ස්තූතියි</h2>
+1194: ඔබ සමඟ සැමරීමට අපි බලා සිටිමු.

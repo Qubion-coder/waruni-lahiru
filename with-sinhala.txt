@@ -1,0 +1,1041 @@
+1: import React, { useEffect, useState } from "react";
+2: import { motion, AnimatePresence } from "framer-motion";
+3: import { Sparkles, MapPin, Calendar, Clock, Send, ChevronDown } from "lucide-react";
+5: const INVITATION = {
+6: couple: {
+7: bride: "Himasha",
+8: groom: "Ganindu",
+9: brideFull: "Himasha Liyangasthenne",
+10: groomFull: "Ganindu Amarasinghe",
+12: date: {
+13: displayNumeric: "20 . 07 . 2026",
+14: displayLong: "සඳුදා, 20 ජූලි 2026",
+15: countdownTarget: "July 20, 2026 17:00:00",
+17: time: {
+18: ceremony: "05:00 PM",
+19: reception: "06:00 PM",
+21: venue: {
+22: name: "Waters Edge - Eagle Banquet",
+23: city: "Battaramulla",
+24: mapQuery: "Waters Edge, Battaramulla",
+25: googleMapsLink: "https://www.google.com/maps/search/?api=1&query=Waters+Edge+Battaramulla",
+27: rsvpContacts: [
+28: "Ganindu: ",
+29: "Himasha: ",
+30: "පවුල: ",
+32: } as const;
+34: const backgroundMusic = "/Brooklyn Duo - A Thousand Years [WEDDING VERSION].mp3";
+35: const googleScriptUrl = "https://script.google.com/macros/s/AKfycbyHN1BshRvxx96eATyW9C0rtkaNFXAoNAe9lh0TiO1uJ-eKzlwXTKglqTUSz5ZH-CoKqA/exec";
+37: const publicImagePath = (fileName: string) => `/images/${fileName.replaceAll(" ", "%20")}`;
+39: const HERO_BACKGROUND_IMAGE = publicImagePath("1 (4).jpg");
+42: function FloatingPetals() {
+43: const [isLowPowerMode, setIsLowPowerMode] = useState(false);
+44: const [petals, setPetals] = useState<Array<{
+45: id: number;
+46: x: number;
+47: size: number;
+48: rotation: number;
+49: duration: number;
+50: delay: number;
+51: color: string;
+52: drift: number;
+53: }>>([]);
+55: useEffect(() => {
+56: const reduceMotion = window.matchMedia("(prefers-reduced-motion: reduce)").matches;
+57: const isMobile = window.innerWidth < 768;
+58: setIsLowPowerMode(reduceMotion || isMobile);
+60: if (reduceMotion) {
+61: setPetals([]);
+62: return;
+65: const colors = ["#F08787", "#F2AE66", "#fb923c", "#FD8A6B", "#ff8c69"];
+66: const petalCount = isMobile ? 10 : 18;
+67: const newPetals = Array.from({ length: petalCount }).map((_, i) => ({
+68: id: i,
+69: x: Math.random() * 100,
+70: size: Math.random() * 7 + 7,
+71: rotation: Math.random() * 360,
+72: duration: Math.random() * 11 + 16,
+73: delay: Math.random() * 20,
+74: color: colors[Math.floor(Math.random() * colors.length)],
+75: drift: Math.random() * 24 - 12,
+76: }));
+78: setPetals(newPetals);
+79: }, []);
+81: return (
+82: <div className={`pointer-events-none fixed inset-0 overflow-hidden z-40 ${isLowPowerMode ? "opacity-70" : ""}`}>
+83: {petals.map((petal) => (
+84: <motion.div
+85: key={petal.id}
+86: className="absolute drop-shadow-[0_2px_10px_rgba(195, 14, 89, 0.3)]"
+87: style={{ color: petal.color }}
+88: initial={{
+89: x: `${petal.x}vw`,
+90: y: "-10vh",
+91: rotate: petal.rotation,
+92: opacity: 0,
+94: animate={{
+95: y: "110vh",
+96: x: `${petal.x + petal.drift}vw`,
+97: rotate: petal.rotation + (isLowPowerMode ? 360 : 720),
+98: opacity: [0, 0.9, 0.8, 0],
+100: transition={{
+101: duration: isLowPowerMode ? petal.duration * 1.2 : petal.duration,
+102: repeat: Infinity,
+103: delay: petal.delay,
+104: ease: "linear",
+106: >
+107: <svg
+108: width={petal.size}
+109: height={petal.size}
+110: viewBox="0 0 24 24"
+111: fill="currentColor"
+112: className="drop-shadow-sm"
+113: >
+114: <path d="M12,2C12,2 10,6 10,10C10,14 12,22 12,22C12,22 14,14 14,10C14,6 12,2 12,2Z" />
+115: </svg>
+116: </motion.div>
+118: </div>
+119: );
+122: function CountdownTimer({ isDark = false }: { isDark?: boolean }) {
+123: const targetDate = new Date(INVITATION.date.countdownTarget).getTime();
+124: const [timeLeft, setTimeLeft] = useState(targetDate - Date.now());
+126: React.useEffect(() => {
+127: const timer = setInterval(() => {
+128: setTimeLeft(targetDate - Date.now());
+129: }, 1000);
+130: return () => clearInterval(timer);
+131: }, [targetDate]);
+133: const days = Math.floor(timeLeft / (1000 * 60 * 60 * 24));
+134: const hours = Math.floor((timeLeft % (1000 * 60 * 60 * 24)) / (1000 * 60 * 60));
+135: const minutes = Math.floor((timeLeft % (1000 * 60 * 60)) / (1000 * 60));
+136: const seconds = Math.floor((timeLeft % (1000 * 60)) / 1000);
+138: const stats = [
+139: { label: "දින", value: days },
+140: { label: "පැය", value: hours },
+141: { label: "මිනිත්තු", value: minutes },
+142: { label: "තත්පර", value: seconds },
+143: ];
+145: return (
+146: <div className="flex flex-wrap gap-2 sm:gap-4 md:gap-8 justify-center w-full max-w-4xl mx-auto mt-8 md:mt-16 z-20 px-2">
+147: {stats.map((stat, i) => (
+148: <motion.div
+149: key={stat.label}
+150: initial={{ opacity: 0, y: 30 }}
+151: whileInView={{ opacity: 1, y: 0 }}
+152: viewport={{ once: true }}
+153: transition={{ delay: i * 0.15, type: "spring", stiffness: 80 }}
+154: className="relative group"
+155: >
+156: {/* Ornamental Frame container */}
+157: <div className={`relative w-[4.5rem] h-[6.5rem] sm:w-20 sm:h-28 md:w-32 md:h-44 rounded-t-full shadow-[0_15px_35px_-10px_rgba(0,0,0,0.15)] border flex flex-col items-center justify-center overflow-hidden transition-all duration-700 group-hover:-translate-y-3 ${isDark ? "bg-[#d53f8c] border-white/20" : "bg-white border-theme-100/60"
+158: }`}>
+159: <div className={`absolute inset-1.5 sm:inset-2 md:inset-3 border-[0.5px] rounded-t-full pointer-events-none ${isDark ? "border-white/30" : "border-theme-300/50"
+160: }`} />
+162: {/* The Number */}
+163: <span className={`text-2xl sm:text-3xl md:text-5xl font-playball leading-none relative z-10 drop-shadow-sm mt-3 sm:mt-4 md:mt-6 transition-transform duration-500 group-hover:scale-110 ${isDark ? "text-white" : "text-theme-800"
+164: }`}>
+165: {Math.max(0, stat.value).toString().padStart(2, '0')}
+166: </span>
+168: {/* The Label */}
+169: <div className="w-full flex justify-center mt-2 sm:mt-3 md:mt-6 mb-1 sm:mb-2 relative z-10">
+170: <span className={`text-[5px] sm:text-[6px] md:text-[8px] uppercase tracking-[0.2em] sm:tracking-[0.3em] md:tracking-[0.4em] font-bold px-2 sm:px-3 py-1 sm:py-1.5 rounded-full border shadow-sm whitespace-nowrap ${isDark ? "bg-white/10 text-white border-white/20" : "bg-stone-50 text-stone-500 border-theme-100/50"
+171: }`}>
+173: </span>
+174: </div>
+176: {/* Bottom decoration */}
+177: <div className={`absolute bottom-2 sm:bottom-3 md:bottom-4 left-1/2 -translate-x-1/2 w-[3px] h-[3px] sm:w-1 sm:h-1 md:w-1.5 md:h-1.5 rotate-45 ${isDark ? "bg-white/40" : "bg-theme-300"
+178: }`} />
+179: </div>
+180: </motion.div>
+182: </div>
+183: );
+187: export default function WeddingInvitation() {
+188: const [hasStarted, setHasStarted] = useState(false);
+189: const [isOpened, setIsOpened] = useState(false);
+190: const [isPlaying, setIsPlaying] = useState(false);
+191: const [rsvpForm, setRsvpForm] = useState({
+192: name: "",
+193: guests: "1",
+194: });
+195: const [wishForm, setWishForm] = useState({
+196: name: "",
+197: message: "",
+198: });
+199: const [rsvpStatus, setRsvpStatus] = useState<"idle" | "sending" | "success" | "error">("idle");
+200: const [wishStatus, setWishStatus] = useState<"idle" | "sending" | "success" | "error">("idle");
+201: const audioRef = React.useRef<HTMLAudioElement>(null);
+202: const introVideoRef = React.useRef<HTMLVideoElement>(null);
+204: const submitToGoogleSheet = async (payload: Record<string, string>) => {
+205: if (!googleScriptUrl) {
+206: throw new Error("Google Script URL එක සකසා නැත");
+209: const response = await fetch(googleScriptUrl, {
+210: method: "POST",
+211: body: new URLSearchParams(payload),
+212: });
+215: throw new Error("ඉල්ලීම අසාර්ථක විය");
+217: };
+219: const handleRsvpSubmit = async (e: React.FormEvent<HTMLFormElement>) => {
+220: e.preventDefault();
+222: if (!rsvpForm.name.trim()) {
+223: setRsvpStatus("error");
+224: return;
+227: setRsvpStatus("sending");
+230: await submitToGoogleSheet({
+231: action: "rsvp",
+232: name: rsvpForm.name.trim(),
+233: guests: rsvpForm.guests,
+234: dietaryNotes: "",
+235: });
+236: setRsvpStatus("success");
+237: setRsvpForm({ name: "", guests: "1" });
+239: setRsvpStatus("error");
+241: };
+243: const handleWishSubmit = async (e: React.FormEvent<HTMLFormElement>) => {
+244: e.preventDefault();
+246: if (!wishForm.name.trim() || !wishForm.message.trim()) {
+247: setWishStatus("error");
+248: return;
+251: setWishStatus("sending");
+254: await submitToGoogleSheet({
+255: action: "wish",
+256: name: wishForm.name.trim(),
+257: message: wishForm.message.trim(),
+258: });
+259: setWishStatus("success");
+260: setWishForm({ name: "", message: "" });
+262: setWishStatus("error");
+264: };
+266: const toggleMusic = () => {
+267: if (audioRef.current) {
+268: if (isPlaying) {
+269: audioRef.current.pause();
+271: audioRef.current.play();
+273: setIsPlaying(!isPlaying);
+275: };
+277: const [hasAttemptedAutoplay, setHasAttemptedAutoplay] = useState(false);
+279: useEffect(() => {
+280: if (isOpened && !isPlaying && !hasAttemptedAutoplay && audioRef.current) {
+281: setHasAttemptedAutoplay(true);
+283: audioRef.current
+285: .then(() => setIsPlaying(true))
+286: .catch(() => {
+287: const playOnInteraction = () => {
+288: if (audioRef.current && !isPlaying) {
+289: audioRef.current
+291: .then(() => {
+292: setIsPlaying(true);
+293: window.removeEventListener("click", playOnInteraction);
+295: .catch(() => { });
+297: };
+299: window.addEventListener("click", playOnInteraction);
+300: });
+302: }, [isOpened, isPlaying, hasAttemptedAutoplay]);
+304: return (
+305: <main
+306: className={`h-[100dvh] w-full bg-[#fdfaf5] transition-all duration-1000 ${isOpened ? "overflow-y-auto overflow-x-hidden" : "overflow-hidden flex items-center justify-center"
+308: >
+309: <FloatingPetals />
+311: <AnimatePresence mode="wait">
+312: {!isOpened ? (
+313: <motion.div
+314: key="video-stage"
+315: initial={{ opacity: 0 }}
+316: animate={{ opacity: 1 }}
+317: exit={{ opacity: 0, transition: { duration: 1.2 } }}
+318: className="fixed inset-0 z-[100] bg-black flex items-center justify-center overflow-hidden"
+319: >
+320: <video
+321: ref={introVideoRef}
+322: src="/intro_video.mp4"
+323: muted={!hasStarted}
+324: playsInline
+325: preload="auto"
+326: className={`w-full h-full object-cover transition-all duration-[2000ms] ease-out ${!hasStarted ? "blur-xl scale-110 opacity-60" : "blur-0 scale-100 opacity-100"
+328: onEnded={() => setIsOpened(true)}
+329: onError={() => setIsOpened(true)}
+330: />
+332: {!hasStarted && (
+333: <div className="absolute inset-0 flex flex-col items-center justify-center z-[120] bg-black/40 backdrop-blur-[2px]">
+334: <motion.div
+335: initial={{ opacity: 0, y: 20 }}
+336: animate={{ opacity: 1, y: 0 }}
+337: transition={{ duration: 1, delay: 0.5 }}
+338: className="text-center"
+339: >
+340: <motion.div
+341: animate={{ scale: [1, 1.05, 1] }}
+342: transition={{ duration: 3, repeat: Infinity, ease: "easeInOut" }}
+343: className="mb-12"
+344: >
+345: <h2 className="font-sinhala text-4xl md:text-6xl text-white mb-2 drop-shadow-2xl">විවාහ මංගල්‍යය</h2>
+346: <p className="font-cinzel text-xl md:text-2xl text-[#F2AE66] tracking-[0.3em] uppercase drop-shadow-lg">{INVITATION.couple.bride} & {INVITATION.couple.groom}</p>
+347: </motion.div>
+349: <button
+350: onClick={() => {
+351: setHasStarted(true);
+352: if (introVideoRef.current) {
+353: introVideoRef.current.muted = false;
+354: introVideoRef.current.currentTime = 0;
+355: introVideoRef.current.play();
+358: className="group relative px-12 py-5 overflow-hidden rounded-full transition-all duration-500 hover:scale-105 active:scale-95"
+359: >
+360: <div className="absolute inset-0 bg-[#F2AE66] opacity-90 group-hover:opacity-100 transition-opacity" />
+361: <div className="absolute inset-0 bg-gradient-to-r from-transparent via-white/30 to-transparent translate-x-[-100%] group-hover:translate-x-[100%] transition-transform duration-1000" />
+362: <span className="relative z-10 font-cinzel font-bold text-black text-sm tracking-[0.4em] uppercase">ආරාධනය විවෘත කරන්න</span>
+363: </button>
+365: <motion.div
+366: initial={{ opacity: 0 }}
+367: animate={{ opacity: 0.6 }}
+368: transition={{ delay: 1.5 }}
+369: className="mt-8 text-white/50 text-[10px] uppercase tracking-[0.4em]"
+370: >
+372: </motion.div>
+373: </motion.div>
+374: </div>
+377: {hasStarted && (
+378: <>
+379: <motion.div
+380: initial={{ opacity: 0, y: 20 }}
+381: animate={{ opacity: 1, y: 0 }}
+382: transition={{ duration: 2, delay: 0.5 }}
+383: className="absolute inset-0 flex flex-col items-center justify-start pt-[30vh] md:pt-32 z-[105] pointer-events-none text-center px-6"
+384: >
+385: <motion.h2
+386: initial={{ opacity: 0 }}
+387: animate={{ opacity: 1 }}
+388: transition={{ duration: 2, delay: 0.8 }}
+389: className="font-playball text-3xl md:text-7xl text-white mb-8 drop-shadow-[0_2px_10px_rgba(0,0,0,0.5)]"
+390: >
+392: </motion.h2>
+394: <div className="flex flex-col items-center w-full max-w-[280px] mx-auto">
+395: <motion.p
+396: initial={{ opacity: 0, x: -20 }}
+397: animate={{ opacity: 1, x: 0 }}
+398: transition={{ duration: 2, delay: 1.2 }}
+399: className="font-cinzel text-3xl md:text-6xl text-white tracking-[0.3em] uppercase font-bold drop-shadow-[0_2px_10px_rgba(0,0,0,0.5)] self-start"
+400: >
+401: {INVITATION.couple.bride}
+402: </motion.p>
+404: <motion.span
+405: initial={{ opacity: 0 }}
+406: animate={{ opacity: 1 }}
+407: transition={{ duration: 2, delay: 1.5 }}
+408: className="font-playball text-2xl md:text-4xl text-white/80 italic drop-shadow-[0_2px_10px_rgba(0,0,0,0.5)] my-1"
+409: >
+411: </motion.span>
+413: <motion.p
+414: initial={{ opacity: 0, x: 20 }}
+415: animate={{ opacity: 1, x: 0 }}
+416: transition={{ duration: 2, delay: 1.8 }}
+417: className="font-cinzel text-xl md:text-4xl text-white/90 tracking-[0.4em] uppercase font-bold drop-shadow-[0_2px_10px_rgba(0,0,0,0.5)] self-end"
+418: >
+419: {INVITATION.couple.groom}
+420: </motion.p>
+421: </div>
+422: </motion.div>
+424: <motion.button
+425: initial={{ opacity: 0 }}
+426: animate={{ opacity: 1 }}
+427: onClick={() => setIsOpened(true)}
+428: className="absolute bottom-10 right-10 z-[110] px-8 py-3 bg-white/10 backdrop-blur-md text-white text-[10px] uppercase tracking-[0.4em] rounded-full border border-white/20 hover:bg-white/20 transition-all font-bold"
+429: >
+431: </motion.button>
+432: </>
+434: </motion.div>
+435: ) : (
+436: <motion.div
+437: key="website-stage"
+438: initial={{ opacity: 0 }}
+439: animate={{ opacity: 1 }}
+440: className="website-shell relative z-20 w-full"
+441: >
+442: {/* Sticky Return Button */}
+443: <motion.button
+444: initial={{ opacity: 0, x: 20 }}
+445: animate={{ opacity: 1, x: 0 }}
+446: onClick={() => setIsOpened(false)}
+447: className="fixed top-6 right-6 z-50 bg-white/80 backdrop-blur-md p-3 rounded-full shadow-lg border border-theme-100 text-theme-800 hover:bg-theme-50 transition-colors"
+448: >
+449: <div className="flex flex-col items-center">
+450: <div className="text-[8px] uppercase tracking-widest font-bold">වසා දමන්න</div>
+451: </div>
+452: </motion.button>
+454: {/* Hero Section */}
+455: <section className="w-full relative flex items-center justify-center overflow-hidden bg-white min-h-[85vh]">
+456: {/* Floral Decorations */}
+457: <img src="/images/44.png" className="absolute top-0 right-0 w-32 sm:w-48 md:w-64 z-20 pointer-events-none opacity-90 transition-transform duration-1000" alt="" />
+458: <img src="/images/f.png" className="absolute bottom-0 left-0 w-32 sm:w-48 md:w-64 z-20 pointer-events-none opacity-90 transition-transform duration-1000" alt="" />
+460: <div
+461: className="absolute inset-0 bg-center bg-cover"
+462: style={{ backgroundImage: `url(\"${HERO_BACKGROUND_IMAGE}\")` }}
+463: aria-hidden="true"
+464: />
+465: <div className="absolute inset-0 bg-white/70" aria-hidden="true" />
+466: <div className="absolute inset-0 bg-gradient-to-b from-theme-50 via-white/70 to-theme-100/40" aria-hidden="true" />
+467: <div className="relative z-10 w-full max-w-5xl px-6 py-24 md:py-32 text-center">
+468: <motion.p
+469: initial={{ opacity: 0, y: -10 }}
+470: animate={{ opacity: 0.75, y: 0 }}
+471: className="text-[10px] md:text-xs uppercase tracking-[0.6em] font-bold text-[#C30E59]"
+472: >
+474: </motion.p>
+476: <motion.div
+477: initial={{ opacity: 0, y: 20 }}
+478: animate={{ opacity: 1, y: 0 }}
+479: transition={{ delay: 0.15, duration: 0.8 }}
+480: className="mt-10"
+481: >
+482: <h1 className="font-playball text-6xl sm:text-7xl md:text-8xl text-[#FD8A6B] italic leading-none">
+483: {INVITATION.couple.bride}
+484: </h1>
+485: <div className="mt-6 flex items-center justify-center gap-5">
+486: <div className="h-px w-14 bg-[#C30E59]/25" />
+487: <span className="font-playball text-4xl md:text-5xl text-[#C30E59]">&</span>
+488: <div className="h-px w-14 bg-[#C30E59]/25" />
+489: </div>
+490: <h1 className="mt-6 font-playball text-6xl sm:text-7xl md:text-8xl text-[#FD8A6B] italic leading-none">
+491: {INVITATION.couple.groom}
+492: </h1>
+493: </motion.div>
+495: <motion.div
+496: initial={{ opacity: 0, y: 16 }}
+497: animate={{ opacity: 1, y: 0 }}
+498: transition={{ delay: 0.35, duration: 0.8 }}
+499: className="mt-12 space-y-5"
+500: >
+501: <p className="font-cinzel text-[10px] md:text-xs tracking-[0.4em] uppercase text-[#C30E59]/70">
+502: {INVITATION.date.displayLong} · {INVITATION.time.reception}
+503: </p>
+504: <p className="text-[#C30E59]/70 text-xs md:text-sm tracking-[0.15em] font-medium font-cinzel leading-loose max-w-2xl mx-auto">
+506: </p>
+508: <a
+509: href="#details"
+510: className="inline-flex items-center justify-center gap-2 mt-6 px-8 py-4 bg-[#C30E59] text-white text-[10px] md:text-xs font-bold uppercase tracking-[0.5em] shadow-xl hover:bg-black transition-colors"
+511: >
+513: <ChevronDown className="w-4 h-4" />
+514: </a>
+515: </motion.div>
+516: </div>
+518: {/* Subtle Scroll Indicator */}
+519: <motion.div
+520: initial={{ opacity: 0 }}
+521: animate={{ opacity: 0.9 }}
+522: transition={{ delay: 1.1, duration: 1 }}
+523: className="absolute bottom-8 left-1/2 -translate-x-1/2 z-20 flex flex-col items-center gap-2"
+524: >
+525: <div className="w-px h-14 bg-gradient-to-b from-[#C30E59]/30 to-transparent rounded-full overflow-hidden">
+526: <motion.div
+527: animate={{ y: [-56, 56] }}
+528: transition={{ duration: 2.2, repeat: Infinity, ease: "easeInOut" }}
+529: className="w-full h-1/2 bg-[#FD8A6B]/45"
+530: />
+531: </div>
+532: </motion.div>
+533: </section>
+535: {/* Wedding Details Section */}
+536: <section id="details" className="relative pt-12 md:pt-20 pb-24 md:pb-32 w-full flex flex-col items-center bg-[#F08787]/10 overflow-hidden">
+538: {/* Ornate Frame Border Overlay */}
+539: <div className="absolute inset-4 md:inset-8 border-[1.5px] border-[#4a5d23]/30 pointer-events-none z-10" />
+540: <div className="absolute inset-5 md:inset-10 border-[0.5px] border-[#c1b199]/20 pointer-events-none z-10" />
+542: <div className="max-w-[1100px] w-full flex flex-col items-center text-center relative z-20 px-6">
+543: <motion.div
+544: initial={{ opacity: 0, scale: 0.95 }}
+545: whileInView={{ opacity: 1, scale: 1 }}
+546: viewport={{ once: true }}
+547: className="flex flex-col items-center mb-16 space-y-6"
+548: >
+549: <div className="flex items-center gap-4 opacity-40">
+550: <div className="h-px w-8 bg-[#C30E59]" />
+551: <Sparkles className="w-4 h-4 text-[#FD8A6B]" />
+552: <div className="h-px w-8 bg-[#C30E59]" />
+553: </div>
+555: <div className="text-[#C30E59] space-y-4">
+556: <div className="space-y-4 mb-8">
+557: <p className="font-cinzel text-[11px] md:text-sm tracking-[0.4em] mb-2 uppercase font-bold">පවුල් දෙකක් අත්වැල බැඳේ</p>
+558: <div className="flex flex-col items-center justify-center gap-2">
+559: <span className="text-sm md:text-base font-cinzel tracking-wider text-stone-700">මහත්මා Hemasiri Amarasinghe සහ මහත්මිය Gnana Hettiarachchi</span>
+560: <span className="font-playball text-2xl text-[#FD8A6B] italic my-2">සමඟ</span>
+561: <span className="text-sm md:text-base font-cinzel tracking-wider text-stone-700">මහත්මිය Himali Koralage සහ මහත්මා Chaminda Liyangasthenne (අභාවප්‍රාප්ත)</span>
+562: </div>
+563: </div>
+565: <p className="text-[10px] md:text-[13px] tracking-[0.2em] md:tracking-[0.4em] uppercase font-medium leading-loose max-w-3xl border-t border-b border-[#F08787]/50 py-6">
+566: ආදරයෙන් පිරුණු හදවතින්, ඔබගේ අගනා පැමිණීම ගෞරවයෙන් ඉල්ලා සිටිමු<br />
+567: <span className="text-[#FD8A6B] font-bold text-base md:text-xl my-2 block font-playball">{INVITATION.couple.brideFull} & {INVITATION.couple.groomFull}</span>
+568: </p>
+569: </div>
+570: </motion.div>
+572: <motion.div
+573: initial={{ opacity: 0, y: 20 }}
+574: whileInView={{ opacity: 1, y: 0 }}
+575: viewport={{ once: true }}
+576: className="mb-8"
+577: >
+578: <h2 className="font-cinzel text-xl md:text-2xl text-[#FD8A6B] tracking-[0.5em] font-bold uppercase">විවාහ උත්සවය</h2>
+579: </motion.div>
+583: {/* Names Card */}
+584: <div className="relative w-full flex flex-col items-center justify-center my-12 mb-24">
+585: <motion.div
+586: initial={{ opacity: 0, y: 24 }}
+587: whileInView={{ opacity: 1, y: 0 }}
+588: viewport={{ once: true }}
+589: className="relative z-20 w-full max-w-[560px] bg-white p-8 md:p-14 shadow-[0_30px_70px_-15px_rgba(135,147,122,0.2)] border border-[#F08787]/50 flex flex-col items-center justify-center text-center"
+590: >
+591: <div className="absolute inset-2 border-[0.5px] border-[#FD8A6B]/30 pointer-events-none" />
+593: <div className="space-y-5 mb-10">
+594: <div className="flex flex-col items-center gap-2">
+595: <span className="text-[9px] uppercase tracking-[0.6em] font-bold text-[#C30E59]/50">වධූ</span>
+596: <h3 className="text-5xl md:text-7xl font-playball text-[#FD8A6B] leading-none">{INVITATION.couple.bride}</h3>
+597: </div>
+598: </div>
+600: <div className="py-2 flex items-center justify-center w-full relative">
+601: <div className="absolute inset-0 flex items-center" aria-hidden="true">
+602: <div className="w-full border-t border-[#F08787]/50"></div>
+603: </div>
+604: <div className="relative flex justify-center">
+605: <span className="bg-white px-6 font-playball text-4xl text-[#FD8A6B]">සමඟ</span>
+606: </div>
+607: </div>
+609: <div className="space-y-5 mt-10">
+610: <div className="flex flex-col items-center gap-2">
+611: <span className="text-[9px] uppercase tracking-[0.6em] font-bold text-[#C30E59]/50">වරයා</span>
+612: <h3 className="text-5xl md:text-7xl font-playball text-[#FD8A6B] leading-none">{INVITATION.couple.groom}</h3>
+613: </div>
+614: </div>
+616: <div className="mt-12 grid grid-cols-1 gap-6 w-full text-left">
+617: <div className="flex items-start gap-4">
+618: <div className="w-10 h-10 rounded-full border border-[#FD8A6B]/20 flex items-center justify-center shrink-0">
+619: <Calendar className="w-4 h-4 text-[#FD8A6B]" />
+620: </div>
+621: <div>
+622: <div className="text-[9px] uppercase tracking-[0.5em] font-bold text-[#C30E59]/40 font-cinzel">දිනය</div>
+623: <div className="text-sm md:text-base text-[#C30E59] font-cinzel tracking-wide font-bold">{INVITATION.date.displayLong}</div>
+624: </div>
+625: </div>
+627: <div className="flex items-start gap-4">
+628: <div className="w-10 h-10 rounded-full border border-[#ed64a6]/20 flex items-center justify-center shrink-0">
+629: <Clock className="w-4 h-4 text-[#ed64a6]" />
+630: </div>
+631: <div>
+632: <div className="text-[9px] uppercase tracking-[0.5em] font-bold text-[#d53f8c]/40 font-cinzel">වේලාව</div>
+633: <div className="text-sm md:text-base text-[#d53f8c] font-cinzel tracking-wide font-bold">පෝරු උත්සවය {INVITATION.time.ceremony}ට</div>
+634: </div>
+635: </div>
+637: <div className="flex items-start gap-4">
+638: <div className="w-10 h-10 rounded-full border border-[#ed64a6]/20 flex items-center justify-center shrink-0">
+639: <MapPin className="w-4 h-4 text-[#ed64a6]" />
+640: </div>
+641: <div>
+642: <div className="text-[9px] uppercase tracking-[0.5em] font-bold text-[#d53f8c]/40 font-cinzel">ස්ථානය</div>
+643: <div className="text-sm md:text-base text-[#d53f8c] font-cinzel tracking-wide font-bold">{INVITATION.venue.name}, {INVITATION.venue.city}</div>
+644: </div>
+645: </div>
+646: </div>
+647: </motion.div>
+648: </div>
+650: </div>
+651: </section>
+655: {/* Schedule Section (No Images) */}
+656: <section className="relative py-20 md:py-28 bg-white overflow-hidden">
+657: <div className="container mx-auto px-6 max-w-5xl relative z-10 text-center">
+658: <motion.div
+659: initial={{ opacity: 0, y: 18 }}
+660: whileInView={{ opacity: 1, y: 0 }}
+661: viewport={{ once: true }}
+662: className="space-y-6 mb-12"
+663: >
+664: <div className="flex flex-col items-center gap-3">
+665: <span className="text-[#d53f8c] font-bold uppercase tracking-[0.6em] text-[10px] md:text-xs opacity-50">දවස</span>
+666: <div className="h-px w-16 bg-[#ed64a6]/30" />
+667: </div>
+668: <h2 className="font-playball text-5xl md:text-7xl bg-gradient-to-r from-[#ed64a6] via-[#d53f8c] to-[#ed64a6] bg-clip-text text-transparent leading-none drop-shadow-sm italic">කාලසටහන</h2>
+669: <p className="text-[#d53f8c]/70 text-xs md:text-sm tracking-[0.3em] font-medium uppercase font-cinzel max-w-2xl mx-auto pt-2 leading-loose">
+671: </p>
+672: </motion.div>
+674: <div className="mx-auto max-w-2xl text-left bg-[#fdfaf0] border border-[#F08787]/40 shadow-[0_30px_70px_-20px_rgba(135,147,122,0.15)]">
+675: <div className="p-8 md:p-12 space-y-8">
+676: <div className="flex items-start gap-4">
+677: <div className="w-10 h-10 rounded-full border border-[#FD8A6B]/20 flex items-center justify-center shrink-0">
+678: <Clock className="w-4 h-4 text-[#FD8A6B]" />
+679: </div>
+680: <div>
+681: <div className="text-[9px] uppercase tracking-[0.5em] font-bold text-[#C30E59]/40 font-cinzel">පෝරු උත්සවය ආරම්භය</div>
+682: <div className="text-sm md:text-base text-[#C30E59] font-cinzel tracking-wide font-bold">05:00 PM</div>
+683: </div>
+684: </div>
+686: <div className="flex items-start gap-4">
+687: <div className="w-10 h-10 rounded-full border border-[#FD8A6B]/20 flex items-center justify-center shrink-0">
+688: <Clock className="w-4 h-4 text-[#FD8A6B]" />
+689: </div>
+690: <div>
+691: <div className="text-[9px] uppercase tracking-[0.5em] font-bold text-[#C30E59]/40 font-cinzel">පෝරු උත්සවය අවසානය</div>
+692: <div className="text-sm md:text-base text-[#C30E59] font-cinzel tracking-wide font-bold">05:30 PM</div>
+693: </div>
+694: </div>
+696: <div className="flex items-start gap-4">
+697: <div className="w-10 h-10 rounded-full border border-[#FD8A6B]/20 flex items-center justify-center shrink-0">
+698: <Clock className="w-4 h-4 text-[#FD8A6B]" />
+699: </div>
+700: <div>
+701: <div className="text-[9px] uppercase tracking-[0.5em] font-bold text-[#C30E59]/40 font-cinzel">ලියාපදිංචිය</div>
+702: <div className="text-sm md:text-base text-[#C30E59] font-cinzel tracking-wide font-bold">05:40 PM</div>
+703: </div>
+704: </div>
+706: <div className="flex items-start gap-4">
+707: <div className="w-10 h-10 rounded-full border border-[#FD8A6B]/20 flex items-center justify-center shrink-0">
+708: <Clock className="w-4 h-4 text-[#FD8A6B]" />
+709: </div>
+710: <div>
+711: <div className="text-[9px] uppercase tracking-[0.5em] font-bold text-[#C30E59]/40 font-cinzel">හෝටල් ප්‍රවේශය (යුවළ)</div>
+712: <div className="text-sm md:text-base text-[#C30E59] font-cinzel tracking-wide font-bold">06:00 PM</div>
+713: </div>
+714: </div>
+715: </div>
+716: </div>
+717: </div>
+718: </section>
+720: {/* Countdown Section */}
+721: <section className="relative py-28 md:py-48 bg-[#C30E59] flex flex-col items-center overflow-hidden">
+722: <div className="absolute top-0 left-0 w-full h-full bg-gradient-to-b from-black/20 via-transparent to-black/20 pointer-events-none" />
+724: {/* Floating Decorative Shapes */}
+725: <motion.div
+726: initial={{ opacity: 0, scale: 0.8 }}
+727: animate={{ opacity: 0.1, scale: 1 }}
+728: transition={{ duration: 3, repeat: Infinity, repeatType: "reverse" }}
+729: className="absolute -top-24 -right-24 w-96 h-96 bg-white blur-[100px] rounded-full pointer-events-none"
+730: />
+731: <motion.div
+732: initial={{ opacity: 0, scale: 0.8 }}
+733: animate={{ opacity: 0.1, scale: 1 }}
+734: transition={{ duration: 4, repeat: Infinity, repeatType: "reverse", delay: 1 }}
+735: className="absolute -bottom-24 -left-24 w-96 h-96 bg-white blur-[100px] rounded-full pointer-events-none"
+736: />
+738: <div className="w-full max-w-[1200px] px-6 flex flex-col items-center text-center relative z-10">
+739: <motion.div
+740: initial={{ opacity: 0, y: 30 }}
+741: whileInView={{ opacity: 1, y: 0 }}
+742: viewport={{ once: true }}
+743: transition={{ duration: 1 }}
+744: className="relative mb-20"
+745: >
+746: {/* Backdrop Title */}
+747: <div className="absolute top-1/2 left-1/2 -translate-x-1/2 -translate-y-1/2 font-playball text-[18vw] md:text-[220px] text-white/5 whitespace-nowrap pointer-events-none select-none tracking-wider">
+749: </div>
+751: {/* Main Title Container */}
+752: <div className="relative z-10 flex flex-col items-center">
+753: <motion.div
+754: initial={{ width: 0 }}
+755: whileInView={{ width: "80px" }}
+756: viewport={{ once: true }}
+757: className="h-px bg-white/40 mb-8"
+758: />
+760: <h2 className="font-cinzel text-3xl md:text-6xl text-white tracking-[0.25em] md:tracking-[0.4em] font-bold uppercase leading-tight">
+761: දිනය <span className="mx-2 md:mx-4 text-[#F2AE66]">සුරකින්න</span>
+762: </h2>
+764: <div className="mt-10 flex items-center justify-center gap-6">
+765: <div className="h-[0.5px] w-8 md:w-16 bg-[#F2AE66]/50" />
+766: <span className="font-playball text-3xl md:text-5xl text-[#F2AE66] drop-shadow-md">{INVITATION.date.displayNumeric}</span>
+767: <div className="h-[0.5px] w-8 md:w-16 bg-[#F2AE66]/50" />
+768: </div>
+769: </div>
+770: </motion.div>
+772: {/* Countdown Component with Dark Theme */}
+773: <CountdownTimer isDark={true} />
+775: <motion.div
+776: initial={{ opacity: 0 }}
+777: whileInView={{ opacity: 0.8 }}
+778: viewport={{ once: true }}
+779: transition={{ delay: 0.8 }}
+780: className="mt-20 flex flex-col items-center gap-4"
+781: >
+782: <p className="text-[10px] md:text-[12px] uppercase tracking-[0.6em] text-white font-bold text-center">
+784: </p>
+785: <div className="flex gap-2">
+786: {[1, 2, 3].map((i) => (
+787: <motion.div
+788: key={i}
+789: animate={{ scale: [1, 1.5, 1], opacity: [0.3, 1, 0.3] }}
+790: transition={{ duration: 2, repeat: Infinity, delay: i * 0.4 }}
+791: className="w-1 h-1 bg-[#F2AE66] rotate-45"
+792: />
+794: </div>
+795: </motion.div>
+796: </div>
+797: </section>
+800: {/* Venue Location Section */}
+801: <section className="relative py-28 md:py-48 bg-[#fdfaf5] overflow-hidden">
+802: {/* Floral Decorations */}
+803: <img src="/images/44.png" className="absolute top-0 right-0 w-32 sm:w-48 md:w-64 z-20 pointer-events-none opacity-80" alt="" />
+804: <img src="/images/f.png" className="absolute bottom-0 left-0 w-32 sm:w-48 md:w-64 z-20 pointer-events-none opacity-80" alt="" />
+806: {/* Decorative Geometric Elements (CSS-Based UI Decorations) */}
+807: <div className="absolute -top-24 -left-24 w-[500px] h-[500px] border border-[#FD8A6B]/10 rounded-full flex items-center justify-center opacity-30 pointer-events-none">
+808: <div className="w-[80%] h-[80%] border border-[#C30E59]/10 rounded-full" />
+809: <div className="w-[60%] h-[60%] border border-[#FD8A6B]/10 rounded-full" />
+810: <div className="absolute top-1/2 left-1/2 -translate-x-1/2 -translate-y-1/2 w-px h-full bg-gradient-to-b from-transparent via-[#FD8A6B]/20 to-transparent rotate-45" />
+811: </div>
+813: <div className="container mx-auto px-6 max-w-7xl relative z-10 text-center">
+814: <motion.div
+815: initial={{ opacity: 0, y: 30 }}
+816: whileInView={{ opacity: 1, y: 0 }}
+817: viewport={{ once: true }}
+818: className="space-y-10 mb-24"
+819: >
+820: <div className="flex flex-col items-center gap-4">
+821: <span className="text-[#C30E59] font-bold uppercase tracking-[0.8em] text-[10px] md:text-xs opacity-40">ස්ථානය</span>
+822: <div className="flex items-center gap-2">
+823: {[1, 2, 3].map((i) => (
+824: <div key={i} className={`w-1.5 h-1.5 rotate-45 ${i === 2 ? "bg-[#FD8A6B]" : "bg-[#C30E59]/20"}`} />
+826: </div>
+827: </div>
+829: <h2 className="font-cinzel text-5xl md:text-9xl bg-gradient-to-br from-[#FD8A6B] to-[#c2410c] bg-clip-text text-transparent leading-tight font-light uppercase tracking-tight relative">
+830: {INVITATION.venue.name.split(" ")[0].toUpperCase()} <span className="block md:inline font-playball normal-case text-4xl md:text-8xl bg-gradient-to-r from-[#C30E59] to-[#FD8A6B] bg-clip-text text-transparent md:-ml-8 relative z-10 translate-y-4 md:translate-y-0 italic drop-shadow-sm">{INVITATION.venue.name.split(" ").slice(1).join(" ")}</span>
+831: </h2>
+833: <div className="max-w-xl mx-auto pt-10 relative">
+834: <div className="absolute top-0 left-1/2 -translate-x-1/2 w-24 h-px bg-[#F08787]" />
+835: <p className="text-[#C30E59]/80 text-sm md:text-base tracking-[0.2em] font-medium uppercase font-cinzel leading-loose pt-8">
+837: </p>
+838: </div>
+839: </motion.div>
+841: <div className="grid lg:grid-cols-12 gap-16 lg:gap-24 items-center">
+842: {/* Left: Atmospheric Location Card */}
+843: <div className="lg:col-span-5 text-left order-2 lg:order-1">
+844: <motion.div
+845: initial={{ opacity: 0, x: -40 }}
+846: whileInView={{ opacity: 1, x: 0 }}
+847: viewport={{ once: true }}
+848: transition={{ delay: 0.2, duration: 0.8 }}
+849: className="bg-white p-10 md:p-16 shadow-[0_60px_100px_-40px_rgba(135,147,122,0.2)] border border-[#F08787]/30 relative group"
+850: >
+851: {/* Interactive hover ornament */}
+852: <div className="absolute inset-2 border-[0.5px] border-[#FD8A6B]/20 pointer-events-none group-hover:border-[#FD8A6B]/40 transition-colors duration-700" />
+854: <div className="space-y-12 relative z-10">
+855: <div className="space-y-6">
+856: <p className="text-[#C30E59] text-xl md:text-2xl font-light italic leading-relaxed font-playball text-center lg:text-left">
+858: </p>
+859: <div className="h-0.5 w-12 bg-[#F08787]/60 mx-auto lg:ml-0" />
+860: </div>
+862: <div className="space-y-10">
+863: <div className="flex items-start gap-8">
+864: <div className="w-12 h-12 rounded-full border border-[#FD8A6B]/20 flex items-center justify-center shrink-0">
+865: <MapPin className="w-5 h-5 text-[#FD8A6B]" />
+866: </div>
+867: <div className="space-y-3">
+868: <h4 className="text-[#C30E59]/40 font-bold text-[10px] uppercase tracking-[0.5em] font-cinzel">ගමනාන්තය</h4>
+869: <p className="text-xl md:text-2xl text-[#C30E59] font-cinzel leading-relaxed tracking-wide font-bold">
+870: {INVITATION.venue.name}, {INVITATION.venue.city}
+871: </p>
+872: </div>
+873: </div>
+875: <div className="flex items-start gap-8">
+876: <div className="w-12 h-12 rounded-full border border-[#FD8A6B]/20 flex items-center justify-center shrink-0">
+877: <Clock className="w-5 h-5 text-[#FD8A6B]" />
+878: </div>
+879: <div className="space-y-1">
+880: <h4 className="text-[#C30E59]/40 font-bold text-[10px] uppercase tracking-[0.5em] font-cinzel">පෝරු උත්සවය</h4>
+881: <p className="text-xl md:text-2xl text-[#C30E59] font-cinzel leading-relaxed tracking-wide font-bold">
+882: {INVITATION.time.ceremony}
+883: </p>
+884: </div>
+885: </div>
+886: </div>
+888: <button
+889: onClick={() => window.open(INVITATION.venue.googleMapsLink, "_blank")}
+890: className="w-full group relative inline-flex items-center justify-center gap-4 py-6 bg-[#C30E59] text-white text-[10px] md:text-xs font-bold uppercase tracking-[0.5em] overflow-hidden transition-all hover:bg-black shadow-xl mt-4"
+891: >
+892: <div className="absolute inset-0 bg-white/5 translate-x-[-100%] group-hover:translate-x-0 transition-transform duration-700" />
+893: <span className="relative z-10 flex items-center gap-3">
+894: <MapPin className="w-4 h-4" />
+896: </span>
+897: </button>
+898: </div>
+899: </motion.div>
+900: </div>
+902: {/* Right: Architectural Map Frame */}
+903: <div className="lg:col-span-7 order-1 lg:order-2">
+904: <motion.div
+905: initial={{ opacity: 0, scale: 0.95 }}
+906: whileInView={{ opacity: 1, scale: 1 }}
+907: viewport={{ once: true }}
+908: transition={{ duration: 1.2, ease: "circOut" }}
+909: className="relative w-full aspect-[4/3] md:aspect-video lg:aspect-[4/3] rounded-[3rem] overflow-hidden shadow-[0_80px_150px_-30px_rgba(0,0,0,0.25)] group bg-white"
+910: >
+911: {/* The Map */}
+912: <iframe
+913: src={`https://maps.google.com/maps?q=${encodeURIComponent(INVITATION.venue.mapQuery)}&t=&z=15&ie=UTF8&iwloc=&output=embed`}
+914: width="100%"
+915: height="100%"
+916: style={{ border: 0 }}
+917: allowFullScreen
+918: loading="lazy"
+919: className="w-full h-full grayscale-[0.85] contrast-150 sepia-[0.2] brightness-[1.05] hover:grayscale-0 hover:sepia-0 hover:contrast-100 transition-all duration-1000 scale-[1.02] group-hover:scale-100"
+920: />
+922: {/* Decorative Frame Overlays */}
+923: <div className="absolute inset-0 pointer-events-none border-[15px] md:border-[25px] border-white/95 rounded-[3rem]" />
+924: <div className="absolute inset-8 md:inset-12 pointer-events-none border border-white/20 rounded-[2.5rem]" />
+926: {/* Arched Corner Floating Element (No image used) */}
+927: <div className="absolute top-0 right-0 w-40 h-40 bg-white/90 backdrop-blur-md flex flex-col items-center justify-center rounded-bl-full shadow-2xl p-8 transform translate-x-4 -translate-y-4 group-hover:translate-x-2 group-hover:-translate-y-2 transition-transform duration-700">
+928: <MapPin className="w-8 h-8 text-[#C30E59] mb-2 opacity-80" />
+929: <span className="text-[8px] font-bold uppercase tracking-widest text-[#C30E59]/50">ගවේෂණය</span>
+930: </div>
+932: {/* Subtle lens flare overlay */}
+933: <div className="absolute inset-0 pointer-events-none bg-gradient-to-tr from-[#FD8A6B]/5 to-transparent mix-blend-overlay" />
+934: </motion.div>
+936: {/* Bottom Floating Card Decoration */}
+937: <motion.div
+938: initial={{ opacity: 0, y: 20 }}
+939: whileInView={{ opacity: 1, y: 0 }}
+940: viewport={{ once: true }}
+941: transition={{ delay: 0.6 }}
+942: className="inline-flex items-center gap-4 mt-8 px-8 py-3 bg-white border border-[#F08787]/40 shadow-lg rounded-full"
+943: >
+944: <Sparkles className="w-4 h-4 text-[#FD8A6B]" />
+945: <span className="text-[10px] md:text-xs font-bold text-[#C30E59] uppercase tracking-widest">{INVITATION.venue.city}</span>
+946: </motion.div>
+947: </div>
+948: </div>
+949: </div>
+950: </section>
+952: {/* RSVP Section (No Images) */}
+953: <section className="relative py-32 md:py-48 bg-[#f8f6f2] flex flex-col items-center overflow-hidden">
+954: <div className="container mx-auto px-4 max-w-4xl flex flex-col items-center relative z-10 w-full">
+955: {/* Heading exactly like image */}
+956: <motion.h2
+957: initial={{ opacity: 0, y: -20 }}
+958: whileInView={{ opacity: 1, y: 0 }}
+959: viewport={{ once: true }}
+960: className="font-cinzel text-2xl md:text-4xl text-slate-800 tracking-[0.3em] mb-12 uppercase text-center"
+961: >
+963: </motion.h2>
+965: <motion.div
+966: initial={{ opacity: 0, y: 24 }}
+967: whileInView={{ opacity: 1, y: 0 }}
+968: transition={{ duration: 1.1, ease: [0.16, 1, 0.3, 1] }}
+969: viewport={{ once: true }}
+970: className="relative w-full max-w-[650px] bg-white p-6 md:p-10 shadow-[0_40px_100px_-25px_rgba(0,0,0,0.12)] border border-slate-100 flex flex-col items-center"
+971: >
+972: {/* Inner rounded border frame exactly like the image mockup */}
+973: <div className="w-full border border-slate-300 rounded-[1.5rem] p-6 md:p-8 flex flex-col items-center">
+974: <h3 className="font-playball text-2xl md:text-4xl text-slate-800 mb-8 text-center">පැමිණීම තහවුරු කිරීම</h3>
+976: <form className="w-full space-y-6 text-left" onSubmit={handleRsvpSubmit}>
+977: <div className="space-y-2">
+978: <label className="text-xs font-bold text-slate-500 ml-1">ඔබගේ නම</label>
+979: <input
+980: type="text"
+981: placeholder="ඔබගේ නම මෙහි ලියන්න..."
+982: value={rsvpForm.name}
+983: onChange={(e) => {
+984: setRsvpStatus("idle");
+985: setRsvpForm((prev) => ({ ...prev, name: e.target.value }));
+987: className="w-full bg-white border border-slate-200 rounded-lg px-4 py-3 text-slate-800 placeholder:text-slate-300 focus:outline-none focus:ring-1 focus:ring-slate-400 transition-all font-cinzel text-base"
+988: required
+989: />
+990: </div>
+992: <div className="space-y-4 pt-2">
+993: <label className="text-xs font-bold text-slate-500 ml-1">අපගේ විශේෂ දිනයට ඔබ පැමිණෙන්නේ ද?</label>
+995: <button
+996: type="button"
+997: onClick={() => {
+998: setRsvpStatus("idle");
+999: setRsvpForm((prev) => ({ ...prev, guests: "1" }));
+1001: aria-pressed={rsvpForm.guests !== "0"}
+1002: className="w-full bg-[#f3f3f3] hover:bg-slate-200 text-slate-700 py-5 md:py-6 rounded-xl font-cinzel text-[11px] md:text-sm tracking-wide transition-all shadow-sm flex items-center justify-center px-4 leading-relaxed active:scale-[0.98]"
+1003: >
+1005: </button>
+1007: <button
+1008: type="button"
+1009: onClick={() => {
+1010: setRsvpStatus("idle");
+1011: setRsvpForm((prev) => ({ ...prev, guests: "0" }));
+1013: aria-pressed={rsvpForm.guests === "0"}
+1014: className="w-full bg-[#f3f3f3] hover:bg-slate-200 text-slate-700 py-5 md:py-6 rounded-xl font-cinzel text-[11px] md:text-sm tracking-wide transition-all shadow-sm flex items-center justify-center px-4 leading-relaxed active:scale-[0.98]"
+1015: >
+1017: </button>
+1018: </div>
+1020: {(rsvpStatus === "success" || rsvpStatus === "error") && (
+1021: <p className={`text-[10px] text-center font-semibold ${rsvpStatus === "success" ? "text-emerald-600" : "text-red-500"}`}>
+1022: {rsvpStatus === "success" ? "පැමිණීම තහවුරු කිරීම සාර්ථකව යවා ඇත." : "කරුණාකර ඔබගේ නම ඇතුළත් කර නැවත උත්සාහ කරන්න."}
+1023: </p>
+1026: <div className="pt-6">
+1027: <button
+1028: type="submit"
+1029: disabled={rsvpStatus === "sending"}
+1030: className="w-full bg-[#C30E59] text-white py-4 md:py-5 rounded-xl font-cinzel text-xs md:text-sm tracking-[0.2em] font-bold hover:bg-[#1a5c4a] transition-all shadow-md uppercase disabled:opacity-70"
+1031: >
+1032: {rsvpStatus === "sending" ? "යවමින්..." : "තහවුරු කිරීමට මෙතැන ක්ලික් කරන්න"}
+1033: </button>
+1034: <p className="text-[10px] text-slate-400 mt-4 text-center leading-relaxed">ඔබගේ තොරතුරු පොදු නොවේ. ඔබගේ ප්‍රතිචාරය පුද්ගලිකය.</p>
+1035: </div>
+1036: </form>
+1037: </div>
+1038: </motion.div>
+1040: {/* Info info mirroring the clean aesthetic */}
+1041: <div className="mt-32 flex flex-col items-center gap-6 text-center w-full max-w-xl">
+1042: <div className="h-px w-24 bg-slate-300" />
+1043: <p className="text-slate-500 text-[10px] tracking-[0.4em] font-bold uppercase mt-2">සම්බන්ධතා</p>
+1044: <div className="flex flex-wrap justify-center gap-x-10 gap-y-4 text-slate-500 text-[10px] md:text-sm tracking-widest font-normal opacity-80 decoration-slate-300 underline-offset-4">
+1045: {INVITATION.rsvpContacts.map((line) => (
+1046: <p key={line}>{line}</p>
+1048: </div>
+1049: </div>
+1050: </div>
+1051: </section>
+1053: {/* Wishing Section */}
+1054: <section className="relative py-28 md:py-48 bg-[#fdfaf5] overflow-hidden">
+1055: {/* Floral Decorations */}
+1056: <img src="/images/44.png" className="absolute top-0 right-0 w-32 sm:w-48 md:w-64 z-20 pointer-events-none opacity-80" alt="" />
+1057: <img src="/images/f.png" className="absolute bottom-0 left-0 w-32 sm:w-48 md:w-64 z-20 pointer-events-none opacity-80" alt="" />
+1059: {/* Large Background Text Ornament */}
+1060: <div className="absolute top-1/2 left-1/2 -translate-x-1/2 -translate-y-1/2 font-playball text-[15vw] text-[#FD8A6B]/5 whitespace-nowrap pointer-events-none select-none italic">
+1062: </div>
+1064: <div className="container mx-auto px-6 max-w-5xl relative z-10 text-center">
+1065: <motion.div
+1066: initial={{ opacity: 0, y: 30 }}
+1067: whileInView={{ opacity: 1, y: 0 }}
+1068: viewport={{ once: true }}
+1069: className="space-y-6 mb-20"
+1070: >
+1071: <div className="flex flex-col items-center gap-3">
+1072: <span className="text-[#C30E59] font-bold uppercase tracking-[0.6em] text-[10px] md:text-xs opacity-50">අමුත්තන්ගේ පොත</span>
+1073: <div className="h-px w-16 bg-[#FD8A6B]/30" />
+1074: </div>
+1076: <h2 className="font-playball text-5xl md:text-8xl bg-gradient-to-r from-[#FD8A6B] via-[#C30E59] to-[#FD8A6B] bg-clip-text text-transparent leading-none drop-shadow-sm italic">
+1078: </h2>
+1080: <p className="text-[#C30E59]/70 text-xs md:text-sm tracking-[0.3em] font-medium uppercase font-cinzel max-w-xl mx-auto pt-4 leading-loose">
+1082: </p>
+1083: </motion.div>
+1085: {/* Refined Stationery Form */}
+1086: <motion.div
+1087: initial={{ opacity: 0, scale: 0.98 }}
+1088: whileInView={{ opacity: 1, scale: 1 }}
+1089: viewport={{ once: true }}
+1090: transition={{ duration: 0.8 }}
+1091: className="max-w-3xl mx-auto"
+1092: >
+1093: <div className="bg-white p-10 md:p-20 shadow-[0_40px_100px_-20px_rgba(135,147,122,0.15)] border border-[#F08787]/40 relative overflow-hidden">
+1094: {/* Inner elegant border */}
+1095: <div className="absolute inset-4 border border-[#F08787]/20 pointer-events-none" />
+1096: <div className="absolute inset-6 border-[0.5px] border-[#FD8A6B]/10 pointer-events-none" />
+1098: {/* Corner Ornaments */}
+1099: <div className="absolute top-4 left-4 w-12 h-12 border-t border-l border-[#FD8A6B]/40 rounded-tl-xl" />
+1100: <div className="absolute bottom-4 right-4 w-12 h-12 border-b border-r border-[#FD8A6B]/40 rounded-br-xl" />
+1102: <form className="space-y-16 text-left relative z-10" onSubmit={handleWishSubmit}>
+1103: <div className="space-y-6 group">
+1104: <label className="text-[10px] uppercase tracking-[0.4em] font-bold text-[#C30E59]/40 group-focus-within:text-[#FD8A6B] transition-colors">
+1106: </label>
+1107: <div className="relative">
+1108: <input
+1109: type="text"
+1110: placeholder="ඔබගේ නම"
+1111: value={wishForm.name}
+1112: onChange={(e) => {
+1113: setWishStatus("idle");
+1114: setWishForm((prev) => ({ ...prev, name: e.target.value }));
+1116: className="w-full bg-transparent border-b border-[#F08787]/60 px-0 py-4 text-[#C30E59] placeholder:text-[#F08787]/30 focus:outline-none focus:border-[#C30E59] transition-all font-cinzel text-xl tracking-widest uppercase"
+1117: required
+1118: />
+1119: <div className="absolute bottom-0 left-0 w-0 h-[1.5px] bg-[#C30E59] transition-all duration-500 group-focus-within:w-full" />
+1120: </div>
+1121: </div>
+1123: <div className="space-y-6 group">
+1124: <label className="text-[10px] uppercase tracking-[0.4em] font-bold text-[#C30E59]/40 group-focus-within:text-[#FD8A6B] transition-colors">
+1126: </label>
+1127: <div className="relative">
+1128: <textarea
+1129: rows={4}
+1130: placeholder="නව යුවළට පැතුම්..."
+1131: value={wishForm.message}
+1132: onChange={(e) => {
+1133: setWishStatus("idle");
+1134: setWishForm((prev) => ({ ...prev, message: e.target.value }));
+1136: className="w-full bg-transparent border-b border-[#F08787]/60 px-0 py-4 text-[#C30E59] placeholder:text-[#F08787]/30 focus:outline-none focus:border-[#C30E59] transition-all font-cinzel text-lg tracking-widest resize-none leading-relaxed"
+1137: required
+1138: />
+1139: <div className="absolute bottom-0 left-0 w-0 h-[1.5px] bg-[#C30E59] transition-all duration-500 group-focus-within:w-full" />
+1140: </div>
+1141: </div>
+1143: {/* Success/Error States */}
+1144: <AnimatePresence>
+1145: {(wishStatus === "success" || wishStatus === "error") && (
+1146: <motion.p
+1147: initial={{ opacity: 0, height: 0 }}
+1148: animate={{ opacity: 1, height: "auto" }}
+1149: exit={{ opacity: 0, height: 0 }}
+1150: className={`text-[10px] text-center font-bold tracking-widest uppercase ${wishStatus === "success" ? "text-emerald-600" : "text-red-500"}`}
+1151: >
+1152: {wishStatus === "success" ? "ආදරයෙන් පණිවිඩය යවා ඇත" : "කරුණාකර ආකෘතිය සම්පූර්ණ කරන්න"}
+1153: </motion.p>
+1155: </AnimatePresence>
+1157: <div className="pt-8 flex justify-center">
+1158: <button
+1159: type="submit"
+1160: disabled={wishStatus === "sending"}
+1161: className="group relative px-16 py-6 bg-[#C30E59] text-white font-bold uppercase tracking-[0.5em] text-[10px] hover:bg-slate-900 transition-all duration-500 shadow-xl disabled:opacity-70 overflow-hidden"
+1162: >
+1163: <div className="absolute inset-0 bg-white/10 translate-y-[100%] group-hover:translate-y-0 transition-transform duration-500" />
+1164: <span className="relative z-10 flex items-center gap-3">
+1165: <Send className="w-3.5 h-3.5 group-hover:translate-x-1 group-hover:-translate-y-1 transition-transform" />
+1166: {wishStatus === "sending" ? "යවමින්..." : "පැතුම් යවන්න"}
+1167: </span>
+1168: </button>
+1169: </div>
+1170: </form>
+1171: </div>
+1172: </motion.div>
+1173: </div>
+1174: </section>
+1176: {/* Closing Section (No Images) */}
+1177: <section className="w-full relative overflow-hidden bg-[#fdfaf5] py-24 md:py-32">
+1178: <div className="container mx-auto px-6 max-w-5xl text-center">
+1179: <motion.div
+1180: initial={{ opacity: 0, y: 20 }}
+1181: whileInView={{ opacity: 1, y: 0 }}
+1182: viewport={{ once: true }}
+1183: transition={{ duration: 1.0 }}
+1184: className="space-y-8"
+1185: >
+1186: <div className="flex items-center justify-center gap-3 opacity-70">
+1187: <div className="h-px w-10 bg-[#C30E59]/20" />
+1188: <Sparkles className="w-4 h-4 text-[#FD8A6B]" />
+1189: <div className="h-px w-10 bg-[#C30E59]/20" />
+1190: </div>
+1192: <h2 className="font-playball text-5xl md:text-7xl bg-gradient-to-r from-[#FD8A6B] via-[#C30E59] to-[#FD8A6B] bg-clip-text text-transparent italic">ස්තූතියි</h2>
+1193: <p className="text-[#C30E59]/70 text-xs md:text-sm tracking-[0.25em] font-medium uppercase font-cinzel leading-loose max-w-3xl mx-auto">
+1195: </p>
+1197: <p className="text-[10px] md:text-xs uppercase tracking-[0.5em] text-[#C30E59]/50 font-bold">
+1198: © 2026 {INVITATION.couple.bride} & {INVITATION.couple.groom}
+1199: </p>
+1200: </motion.div>
+1201: </div>
+1202: </section>
+1203: </motion.div>
+1205: </AnimatePresence>
+1207: <audio ref={audioRef} src={backgroundMusic} loop />
+1209: {/* Music Control Button */}
+1210: <motion.button
+1211: initial={{ opacity: 0, scale: 0.8 }}
+1212: animate={{ opacity: 1, scale: 1 }}
+1213: onClick={toggleMusic}
+1214: className="fixed bottom-6 right-6 z-[60] bg-white text-[#87937a] p-3 rounded-full shadow-lg border border-[#ccbaa2]/40 hover:bg-[#87937a]/10 transition-colors"
+1215: >
+1216: <div className="flex flex-col items-center">
+1217: {isPlaying ? (
+1218: <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round"><polygon points="11 5 6 9 2 9 2 15 6 15 11 19 11 5"></polygon><path d="M15.54 8.46a5 5 0 0 1 0 7.07"></path><path d="M19.07 4.93a10 10 0 0 1 0 14.14"></path></svg>
+1219: ) : (
+1220: <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round"><polygon points="11 5 6 9 2 9 2 15 6 15 11 19 11 5"></polygon><line x1="23" y1="9" x2="17" y2="15"></line><line x1="17" y1="9" x2="23" y2="15"></line></svg>
+1222: </div>
+1223: </motion.button>
+1225: <style dangerouslySetInnerHTML={{
+1226: __html: `
+1227: @keyframes spin-slow {
+1228: from { transform: rotate(0deg); }
+1229: to { transform: rotate(360deg); }
+1232: animation: spin-slow linear infinite;
+1234: ::-webkit-scrollbar {
+1235: width: 8px;
+1237: ::-webkit-scrollbar-track {
+1238: background: #ccbaa233;
+1240: ::-webkit-scrollbar-thumb {
+1241: background: #87937a66;
+1242: border-radius: 10px;
+1244: `}} />
+1245: </main >
+1246: );
