@@ -1,12 +1,10 @@
 import React, { useEffect, useState } from "react";
 import { motion, AnimatePresence } from "framer-motion";
 import { MapPin, Calendar, Clock, ChevronDown, Phone } from "lucide-react";
+import { COUPLE, readGuestFromLocation } from "./guest";
 
 const INVITATION = {
-  couple: {
-    bride: "Waruni",
-    groom: "Lahiru",
-  },
+  couple: COUPLE,
   parents: {
     first: "Mr. Samaraweera & Mrs. Viviyan",
     second: "Mr. Priyantha & Mrs. Nimali",
@@ -38,8 +36,9 @@ const INVITATION = {
 
 const backgroundMusic = "/Sandarenu Athi Reeka (සඳ රණ ඇත රක)  Cover Song by Nisal Sathsara ft Sachini Ranawaka.mp3";
 
-const googleScriptUrl =
-  "https://script.google.com/macros/s/AKfycby0MIr0BBQnwPVhIqLk-nOvRaJ71vY8MABRm3wLiE5vnlcD6QpbGasYHEWDpSsLZqRM/exec";
+// Web app URL from deploying code.gs (Deploy → New deployment → Web app). Ends in /exec.
+const GOOGLE_SCRIPT_URL =
+  "https://script.google.com/macros/s/AKfycbznOYc35v-YvlswZlvd2fI54PAm3gMqra2FJ4Q61Nu4WC1tKJqJfIXmlx8UHHnBFf6-/exec";
 
 const MAX_GUESTS = 10;
 
@@ -243,6 +242,7 @@ function RsvpForm({ defaultName }: { defaultName: string }) {
   const [name, setName] = useState(defaultName);
   const [attendance, setAttendance] = useState<"accept" | "decline" | null>(null);
   const [guests, setGuests] = useState(1);
+  const [wish, setWish] = useState("");
   const [status, setStatus] = useState<"idle" | "sending" | "success" | "error">("idle");
   const [error, setError] = useState("");
 
@@ -262,16 +262,21 @@ function RsvpForm({ defaultName }: { defaultName: string }) {
     setStatus("sending");
 
     try {
-      const response = await fetch(googleScriptUrl, {
+      if (!GOOGLE_SCRIPT_URL) throw new Error("RSVP endpoint not configured");
+
+      const response = await fetch(GOOGLE_SCRIPT_URL, {
         method: "POST",
         body: new URLSearchParams({
           action: "rsvp",
           name: name.trim(),
           attendance: attendance === "accept" ? "Attending" : "Declined",
           guests: attendance === "accept" ? String(guests) : "0",
+          wish: wish.trim(),
         }),
       });
       if (!response.ok) throw new Error("Request failed");
+      const result = await response.json().catch(() => ({ ok: true }));
+      if (result && result.ok === false) throw new Error(result.message);
       setStatus("success");
     } catch {
       setStatus("error");
@@ -290,6 +295,9 @@ function RsvpForm({ defaultName }: { defaultName: string }) {
             ? `Thank you, ${name.trim()}. We have reserved ${guests} ${guests === 1 ? "seat" : "seats"} for you.`
             : `Thank you for letting us know, ${name.trim()}. We'll miss you on our special day.`}
         </p>
+        {wish.trim() && (
+          <p className="italic text-base md:text-lg text-[#9a7646]">Your lovely wishes mean so much to us.</p>
+        )}
       </motion.div>
     );
   }
@@ -359,6 +367,20 @@ function RsvpForm({ defaultName }: { defaultName: string }) {
         )}
       </AnimatePresence>
 
+      <label className="block">
+        <span className="font-display text-[10px] md:text-xs tracking-[0.3em] uppercase text-[#9a7646]">
+          Wishes for the Couple <span className="normal-case tracking-normal italic font-serif text-sm">(optional)</span>
+        </span>
+        <textarea
+          value={wish}
+          onChange={(e) => setWish(e.target.value)}
+          rows={4}
+          maxLength={1000}
+          placeholder="Share your love and blessings…"
+          className="mt-2 w-full resize-none bg-[#fdf8f4]/60 border border-[#b8935a]/40 p-3 text-lg text-[#3a2a30] leading-relaxed placeholder:text-[#3a2a30]/30 placeholder:italic focus:outline-none focus:border-[#6b1d3a]"
+        />
+      </label>
+
       {error && <p className="italic text-center text-[#a3263f]">{error}</p>}
 
       <button
@@ -374,10 +396,9 @@ function RsvpForm({ defaultName }: { defaultName: string }) {
 }
 
 export default function WeddingInvitation() {
-  const searchParams = new URLSearchParams(window.location.search);
-  const guestPrefix = searchParams.get("prefix");
-  const guestName = searchParams.get("name");
-  const guestLine = guestName ? `${guestPrefix ?? ""} ${guestName}`.trim() : null;
+  const [guest] = useState(() => readGuestFromLocation(window.location));
+  const guestName = guest?.guestName ?? null;
+  const guestLine = guest?.displayName ?? null;
 
   const [hasStarted, setHasStarted] = useState(false);
   const [isOpened, setIsOpened] = useState(false);
@@ -587,19 +608,6 @@ export default function WeddingInvitation() {
               <div className="absolute inset-0 bg-gradient-to-b from-white/10 via-white/20 to-[#fdf8f4]" aria-hidden="true" />
 
               <div className="relative z-10 w-full max-w-4xl px-6 text-center">
-                {guestLine && (
-                  <motion.div
-                    initial={{ opacity: 0, y: -10 }}
-                    animate={{ opacity: 1, y: 0 }}
-                    className="mb-10"
-                  >
-                    <p className="text-lg md:text-xl italic text-[#5a4148]">Dear</p>
-                    <p className="font-script text-4xl md:text-5xl mt-1" style={{ color: WINE }}>
-                      {guestLine}
-                    </p>
-                  </motion.div>
-                )}
-
                 <motion.div
                   initial={{ opacity: 0, y: 10 }}
                   animate={{ opacity: 1, y: 0 }}
@@ -690,7 +698,10 @@ export default function WeddingInvitation() {
 
                   <div className="py-2">
                     {guestLine ? (
-                      <p className="font-script text-4xl md:text-5xl" style={{ color: WINE }}>{guestLine}</p>
+                      <p className="font-script text-4xl md:text-5xl leading-snug" style={{ color: WINE }}>
+                        {guestLine}
+                        <span className="block mx-auto mt-2 w-56 max-w-full border-b border-dotted border-[#b8935a]" />
+                      </p>
                     ) : (
                       <p className="font-display text-sm md:text-base tracking-[0.2em] text-[#5a4148]">
                         Mr. &amp; Mrs. / Miss
@@ -883,6 +894,20 @@ export default function WeddingInvitation() {
                 </p>
               </motion.div>
             </section>
+
+            <footer className="w-full bg-[#4a1428] border-t border-[#D4AF37]/30 py-6 pl-6 pr-20 sm:px-20 text-center">
+              <p className="text-[#D4AF37] text-xs mt-2 font-sans tracking-wider leading-relaxed">
+                Want a beautiful wedding website like this? Create yours with{" "}
+                <a
+                  target="_blank"
+                  rel="noreferrer"
+                  className="text-white hover:text-[#D4AF37] underline underline-offset-2 transition-colors"
+                  href="https://wa.me/94707819074"
+                >
+                  invitemint
+                </a>
+              </p>
+            </footer>
           </motion.div>
         )}
       </AnimatePresence>

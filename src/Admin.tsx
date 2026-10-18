@@ -1,80 +1,151 @@
-import React, { useState } from 'react';
+import { useEffect, useState } from "react";
+import { Check, Copy, Link2, MessageCircle } from "lucide-react";
+import { COUPLE, PREFIXES, PrefixKey, buildDisplayName, buildInviteLink, buildInviteMessage } from "./guest";
+
+const WINE = "#6b1d3a";
 
 export default function Admin() {
-  const [prefix, setPrefix] = useState('Mr. & Mrs.');
-  const [name, setName] = useState('');
-  const [generatedLink, setGeneratedLink] = useState('');
+  const [prefix, setPrefix] = useState<PrefixKey>("mr");
+  const [name, setName] = useState("");
+  const [generated, setGenerated] = useState<{ link: string; message: string; displayName: string } | null>(null);
+  const [toast, setToast] = useState("");
 
-  const handleGenerate = () => {
+  useEffect(() => {
+    if (!toast) return;
+    const timer = setTimeout(() => setToast(""), 2000);
+    return () => clearTimeout(timer);
+  }, [toast]);
+
+  const handleGenerate = (e: React.FormEvent) => {
+    e.preventDefault();
     if (!name.trim()) return;
-    const url = new URL(window.location.origin);
-    url.searchParams.set('prefix', prefix);
-    url.searchParams.set('name', name);
-    setGeneratedLink(url.toString());
+
+    const displayName = buildDisplayName(prefix, name);
+    const link = buildInviteLink(window.location.origin, prefix, name);
+    setGenerated({ displayName, link, message: buildInviteMessage(displayName, link) });
   };
 
-  const handleCopy = () => {
-    navigator.clipboard.writeText(generatedLink);
-    alert('Link copied to clipboard!');
+  const copy = async (text: string, label: string) => {
+    try {
+      await navigator.clipboard.writeText(text);
+      setToast(label);
+    } catch {
+      setToast("Copy failed. Please copy manually.");
+    }
   };
+
+  const previewName = name.trim() ? buildDisplayName(prefix, name) : "";
 
   return (
-    <div className="min-h-screen bg-slate-50 flex items-center justify-center p-6 font-sans">
-      <div className="bg-white p-8 rounded-2xl shadow-xl w-full max-w-md">
-        <h1 className="text-2xl font-bold text-slate-800 mb-6">Link Generator</h1>
-        
-        <div className="space-y-4">
-          <div>
-            <label className="block text-sm font-medium text-slate-700 mb-1">Prefix</label>
-            <select
-              value={prefix}
-              onChange={(e) => setPrefix(e.target.value)}
-              className="w-full border border-slate-300 rounded-lg p-2.5 focus:ring-2 focus:ring-[#8c244c] focus:border-[#8c244c] outline-none"
-            >
-              <option value="Mr. & Mrs.">Mr. & Mrs.</option>
-              <option value="Mr.">Mr.</option>
-              <option value="Mrs.">Mrs.</option>
-              <option value="Ms.">Ms.</option>
-              <option value="Miss.">Miss.</option>
-              <option value="Dr.">Dr.</option>
-              <option value="Rev.">Rev.</option>
-              <option value="Prof.">Prof.</option>
-              <option value="Hon.">Hon.</option>
-              <option value="Family of">Family of</option>
-            </select>
+    <div className="h-[100dvh] overflow-y-auto bg-[#fdf8f4] flex items-start sm:items-center justify-center px-4 py-10 font-sans">
+      <div className="w-full max-w-lg bg-white p-6 sm:p-8 shadow-[0_30px_60px_-30px_rgba(107,29,58,0.3)] border border-[#b8935a]/30">
+        <p className="font-display text-[10px] tracking-[0.35em] uppercase text-[#9a7646]">
+          {COUPLE.bride} &amp; {COUPLE.groom}
+        </p>
+        <h1 className="font-serif text-3xl text-[#3a2a30] mt-1 mb-6">Invitation Link Generator</h1>
+
+        <form onSubmit={handleGenerate} className="space-y-4">
+          <div className="grid grid-cols-1 sm:grid-cols-[150px_1fr] gap-4">
+            <label className="block">
+              <span className="block text-xs font-medium text-slate-600 mb-1">Prefix</span>
+              <select
+                value={prefix}
+                onChange={(e) => setPrefix(e.target.value as PrefixKey)}
+                className="w-full border border-slate-300 bg-white p-2.5 text-slate-800 outline-none focus:border-[#6b1d3a] focus:ring-1 focus:ring-[#6b1d3a]"
+              >
+                {PREFIXES.map((p) => (
+                  <option key={p.key} value={p.key}>
+                    {p.label}
+                  </option>
+                ))}
+              </select>
+            </label>
+
+            <label className="block">
+              <span className="block text-xs font-medium text-slate-600 mb-1">Guest Name</span>
+              <input
+                type="text"
+                value={name}
+                onChange={(e) => setName(e.target.value)}
+                placeholder="e.g. Sanjaya"
+                className="w-full border border-slate-300 p-2.5 text-slate-800 outline-none focus:border-[#6b1d3a] focus:ring-1 focus:ring-[#6b1d3a]"
+              />
+            </label>
           </div>
 
-          <div>
-            <label className="block text-sm font-medium text-slate-700 mb-1">Guest Name</label>
-            <input
-              type="text"
-              value={name}
-              onChange={(e) => setName(e.target.value)}
-              placeholder="e.g. John Doe"
-              className="w-full border border-slate-300 rounded-lg p-2.5 focus:ring-2 focus:ring-[#8c244c] focus:border-[#8c244c] outline-none"
-            />
-          </div>
+          {previewName && (
+            <p className="text-sm text-slate-500">
+              Greeting: <span className="font-semibold text-slate-800">Dear {previewName} ❤️</span>
+            </p>
+          )}
 
           <button
-            onClick={handleGenerate}
-            className="w-full bg-[#8c244c] text-white font-bold py-3 rounded-lg mt-2 hover:bg-[#c44576] transition-colors"
+            type="submit"
+            disabled={!name.trim()}
+            className="w-full flex items-center justify-center gap-2 text-white font-semibold py-3 hover:opacity-90 transition-opacity disabled:opacity-40"
+            style={{ background: WINE }}
           >
+            <Link2 className="w-4 h-4" />
             Generate Link
           </button>
+        </form>
 
-          {generatedLink && (
-            <div className="mt-6 p-4 bg-slate-50 border border-slate-200 rounded-lg space-y-3">
-              <p className="text-sm text-slate-600 break-all">{generatedLink}</p>
-              <button
-                onClick={handleCopy}
-                className="w-full bg-slate-800 text-white font-medium py-2 rounded-lg hover:bg-slate-900 transition-colors"
-              >
-                Copy Link
-              </button>
-            </div>
+        <div className="mt-6 space-y-4">
+          {generated && (
+            <>
+              <div>
+                <span className="block text-xs font-medium text-slate-600 mb-1">Invitation link</span>
+                <a
+                  href={generated.link}
+                  target="_blank"
+                  rel="noreferrer"
+                  className="block break-all border border-slate-200 bg-slate-50 p-3 text-sm text-[#6b1d3a] underline-offset-2 hover:underline"
+                >
+                  {generated.link}
+                </a>
+              </div>
+
+              <div>
+                <span className="block text-xs font-medium text-slate-600 mb-1">Message preview</span>
+                <pre className="whitespace-pre-wrap break-words border border-slate-200 bg-slate-50 p-3 text-sm text-slate-700 font-sans max-h-72 overflow-y-auto">
+                  {generated.message}
+                </pre>
+              </div>
+            </>
           )}
+
+          <div className="grid grid-cols-1 sm:grid-cols-2 gap-3">
+            <button
+              type="button"
+              disabled={!generated}
+              onClick={() => generated && copy(generated.link, "Link copied!")}
+              className="flex items-center justify-center gap-2 border border-slate-300 py-2.5 text-slate-800 font-medium hover:bg-slate-50 transition-colors disabled:opacity-40 disabled:hover:bg-transparent"
+            >
+              <Copy className="w-4 h-4" />
+              Copy Link Only
+            </button>
+            <button
+              type="button"
+              disabled={!generated}
+              onClick={() => generated && copy(generated.message, "Message copied!")}
+              className="flex items-center justify-center gap-2 bg-[#25D366] py-2.5 text-white font-medium hover:opacity-90 transition-opacity disabled:opacity-40"
+            >
+              <MessageCircle className="w-4 h-4" />
+              Copy Full Message
+            </button>
+          </div>
         </div>
       </div>
+
+      {toast && (
+        <div
+          role="status"
+          className="fixed bottom-6 left-1/2 -translate-x-1/2 flex items-center gap-2 bg-slate-900 text-white text-sm px-4 py-2.5 shadow-lg"
+        >
+          <Check className="w-4 h-4 text-[#25D366]" />
+          {toast}
+        </div>
+      )}
     </div>
   );
 }
