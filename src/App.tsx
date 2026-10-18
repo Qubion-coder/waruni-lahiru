@@ -34,7 +34,7 @@ const INVITATION = {
   ],
 } as const;
 
-const backgroundMusic = "/music.mp3";
+const backgroundMusic = "/layama-piruna-kanchana-anuradhi-dinesh-gamage.mp3";
 
 // Web app URL from deploying code.gs (Deploy → New deployment → Web app). Ends in /exec.
 const GOOGLE_SCRIPT_URL =
