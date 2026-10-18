@@ -38,7 +38,7 @@ const backgroundMusic = "/music.mp3";
 
 // Web app URL from deploying code.gs (Deploy → New deployment → Web app). Ends in /exec.
 const GOOGLE_SCRIPT_URL =
-  "https://script.google.com/macros/s/AKfycbznOYc35v-YvlswZlvd2fI54PAm3gMqra2FJ4Q61Nu4WC1tKJqJfIXmlx8UHHnBFf6-/exec";
+  "https://script.google.com/macros/s/AKfycbyugmKWp-fNt2SFDJM-70awYw8-OtkBhR4UhXFD-mL2gHZ15ARWlqgkblya8owTjPxV/exec";
 
 const MAX_GUESTS = 10;
 
