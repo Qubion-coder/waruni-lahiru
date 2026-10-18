@@ -34,7 +34,7 @@ const INVITATION = {
   ],
 } as const;
 
-const backgroundMusic = "/Sandarenu Athi Reeka (සඳ රණ ඇත රක)  Cover Song by Nisal Sathsara ft Sachini Ranawaka.mp3";
+const backgroundMusic = "/music.mp3";
 
 // Web app URL from deploying code.gs (Deploy → New deployment → Web app). Ends in /exec.
 const GOOGLE_SCRIPT_URL =
@@ -468,7 +468,8 @@ export default function WeddingInvitation() {
           >
             <video
               ref={introVideoRef}
-              src="/Wedding_invitation_intro_video_202606081545.mp4"
+              src="/intro.mp4"
+              poster="/intro-poster.webp"
               muted={!hasStarted}
               playsInline
               preload="auto"
@@ -602,7 +603,7 @@ export default function WeddingInvitation() {
             <section className="w-full relative flex items-center justify-center overflow-hidden min-h-[100dvh] py-24">
               <div
                 className="absolute inset-0 bg-center bg-cover"
-                style={{ backgroundImage: `url('/ChatGPT%20Image%20Jun%208,%202026,%2003_51_28%20PM.png')` }}
+                style={{ backgroundImage: `url('/bg-blush.webp')` }}
                 aria-hidden="true"
               />
               <div className="absolute inset-0 bg-gradient-to-b from-white/10 via-white/20 to-[#fdf8f4]" aria-hidden="true" />
@@ -756,7 +757,7 @@ export default function WeddingInvitation() {
             <section className="relative py-20 md:py-40 flex flex-col items-center overflow-hidden">
               <div
                 className="absolute inset-0 bg-center bg-cover"
-                style={{ backgroundImage: `url('/ChatGPT%20Image%20Jun%208,%202026,%2003_57_11%20PM.png')` }}
+                style={{ backgroundImage: `url('/bg-wine.webp')` }}
                 aria-hidden="true"
               />
               <div className="absolute inset-0 bg-[#3d0f22]/30" aria-hidden="true" />
@@ -912,7 +913,7 @@ export default function WeddingInvitation() {
         )}
       </AnimatePresence>
 
-      <audio ref={audioRef} src={backgroundMusic} loop />
+      <audio ref={audioRef} src={backgroundMusic} loop preload="none" />
 
       <motion.button
         initial={{ opacity: 0, scale: 0.8 }}
